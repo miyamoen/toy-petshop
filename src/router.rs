@@ -8,6 +8,9 @@ pub fn router() -> Router {
             .get("/pets/:id")
             .with_path_extractor::<IdExtractor>()
             .to(pet::get);
+        route.associate("/pets", |assoc| {
+            assoc.get().to(pets::get);
+        })
     })
 }
 
