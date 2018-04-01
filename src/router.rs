@@ -10,6 +10,7 @@ pub fn router() -> Router {
             .to(pet::get);
         route.associate("/pets", |assoc| {
             assoc.get().to(pets::get);
+            assoc.post().to(pets::post);
         })
     })
 }

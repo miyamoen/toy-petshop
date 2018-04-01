@@ -6,6 +6,7 @@ extern crate futures;
 extern crate gotham;
 #[macro_use]
 extern crate gotham_derive;
+extern crate gotham_serde_json_body_parser;
 extern crate hyper;
 extern crate mime;
 extern crate serde;

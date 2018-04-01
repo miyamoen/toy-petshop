@@ -7,6 +7,8 @@ authors = ["miyamoen <akihito.biblioteca@gmail.com>"]
 [dependencies]
 gotham = "0.2"
 gotham_derive = "0.2"
+gotham_serde_json_body_parser = "0.2"
+
 serde = "1"
 serde_json = "1"
 serde_derive = "1"
