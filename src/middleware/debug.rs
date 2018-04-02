@@ -21,23 +21,15 @@ impl Middleware for DebugMiddleware {
     where
         Chain: FnOnce(State) -> Box<HandlerFuture>,
     {
-        // debug!("[{}] pre chain", request_id(&state));
-        // Do things prior to passing the request on to other middleware and the eventual Handler
-        // ..
-        // For example store something in State
-        // state.put(MyData { my_value: "abcdefg".to_owned() });
-
-        let f = chain(state).and_then(move |(state, response)| {
-            {
-                debug!("response {:?}", response);
-                // debug!("[{}] post chain", request_id(&state));
-                // Do things once a response has come back
-                // ..
-                // For example get our data back from State
-                // let data = state.borrow::<MyData>().unwrap();
-            }
-            future::ok((state, response))
-        });
+        let f = chain(state)
+            .and_then(move |(state, response)| {
+                error!("miyamo response {:?}", response);
+                future::ok((state, response))
+            })
+            .map_err(move |(state, err)| {
+                error!("miyamo err response {:?}", err);
+                (state, err)
+            });
         Box::new(f)
     }
 }
