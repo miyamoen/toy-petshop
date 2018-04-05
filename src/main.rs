@@ -8,8 +8,11 @@ mod schema;
 extern crate simplelog;
 #[macro_use]
 extern crate log;
+use my_diesel::create_post;
 use simplelog::*;
 use std::fs::File;
+use std::io::Read;
+use std::io::stdin;
 extern crate dotenv;
 
 extern crate futures;
@@ -33,6 +36,12 @@ use diesel::prelude::*;
 use my_diesel::establish_connection;
 use router::router;
 
+#[cfg(not(windows))]
+const EOF: &'static str = "CTRL+D";
+
+#[cfg(windows)]
+const EOF: &'static str = "CTRL+Z";
+
 pub fn main() {
     log_init();
     dotenv().ok();
@@ -40,8 +49,23 @@ pub fn main() {
     use schema::posts::dsl::*;
 
     let connection = establish_connection();
+
+    println!("What would you like your title to be?");
+    let mut var_title = String::new();
+    stdin().read_line(&mut var_title).unwrap();
+    let var_title = &var_title[..(var_title.len() - 1)]; // Drop the newline character
+    println!(
+        "\nOk! Let's write {} (Press {} when finished)\n",
+        var_title, EOF
+    );
+    let mut var_body = String::new();
+    stdin().read_to_string(&mut var_body).unwrap();
+
+    let post = create_post(&connection, var_title, &var_body);
+    println!("\nSaved draft {} with id {}", var_title, post.id);
+
     let results = posts
-        .filter(published.eq(true))
+        .filter(published.eq(false))
         .limit(5)
         .load::<model::Post>(&connection)
         .expect("Error loading posts");
