@@ -1,9 +1,7 @@
 pub mod pet;
 
-use schema::posts;
-
-#[derive(Insertable)]
-#[table_name = "posts"]
+// #[derive(Insertable)]
+// #[table_name = "posts"]
 pub struct NewPost<'a> {
     pub title: &'a str,
     pub body: &'a str,
