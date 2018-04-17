@@ -1,18 +1,23 @@
-use futures::{future, Future};
+use diesel::pg::PgConnection;
 use gotham::handler::HandlerFuture;
 use gotham::middleware::{Middleware, NewMiddleware};
-use gotham::state::{request_id, State};
-use std::io;
-
-use diesel::connection::Connection;
-use diesel::pg::PgConnection;
-use r2d2::{Pool, PooledConnection};
+use gotham::state::State;
+use r2d2;
+use r2d2::PooledConnection;
 use r2d2_diesel::ConnectionManager;
-use std::sync::Arc;
-use std::sync::RwLock;
+use std::io;
+use std::sync::{Arc, RwLock};
+
+type Pointer<T> = Arc<RwLock<T>>;
+
+fn pointer_new<T>(t: T) -> Pointer<T> {
+    Arc::new(RwLock::new(t))
+}
+
+type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
 pub struct DBConnectionMiddleware {
-    pool: Arc<RwLock<Pool<ConnectionManager<PgConnection>>>>,
+    pool: Pointer<Pool>,
 }
 
 impl DBConnectionMiddleware {
@@ -20,9 +25,7 @@ impl DBConnectionMiddleware {
         let manager = ConnectionManager::new(database_url);
 
         DBConnectionMiddleware {
-            pool: Arc::new(RwLock::new(
-                Pool::builder().max_size(15).build(manager).unwrap(),
-            )),
+            pool: pointer_new(Pool::builder().max_size(15).build(manager).unwrap()),
         }
     }
 }
